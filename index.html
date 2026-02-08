@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yooyeon Objekt Gachapon</title>
+
+<style>
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:linear-gradient(135deg,#ffd6e7,#d6f0ff);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+.app{
+  width:900px;
+  background:white;
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 15px 30px rgba(0,0,0,.2);
+}
+
+h1{
+  text-align:center;
+}
+
+.topbar{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  margin-bottom:15px;
+  flex-wrap:wrap;
+}
+
+button{
+  padding:10px 14px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.coinBtn{background:#ff4d6d;color:white;}
+.buyBtn{background:#222;color:white;}
+.resetBtn{background:#888;color:white;}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;
+}
+
+.card{
+  border:2px solid #eee;
+  border-radius:15px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:.2s;
+  aspect-ratio:541.5 / 836.5;
+  background:#f3f3f3;
+}
+
+.card:hover{transform:scale(1.03);}
+.card.selected{border-color:#ff4d6d;}
+
+.card img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+.meta{
+  text-align:center;
+  font-size:12px;
+  font-weight:bold;
+  padding:5px;
+  background:white;
+}
+
+.machine{
+  margin-top:15px;
+  padding:12px;
+  border:2px dashed #ff4d6d;
+  border-radius:15px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.machine img{
+  width:100px;
+  aspect-ratio:541.5 / 836.5;
+  object-fit:contain;
+  border-radius:10px;
+  border:1px solid #ccc;
+  background:#f3f3f3;
+}
+
+.log{
+  margin-top:10px;
+  background:#111;
+  color:#0f0;
+  padding:8px;
+  height:90px;
+  overflow:auto;
+  font-size:12px;
+  font-family:monospace;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<h1>🎡 Yooyeon Objekt Gachapon</h1>
+
+<div class="topbar">
+  <button class="coinBtn" onclick="addCoin()">Insert Coin</button>
+  <button class="buyBtn" onclick="buyItem()">Buy Selected</button>
+  <button class="resetBtn" onclick="reset()">Reset</button>
+  <div>Coins: <b id="coins">0</b> 🪙</div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="machine">
+  <img id="dispenseImg">
+  <div id="dispenseText">Insert coins and buy a photocard.</div>
+</div>
+
+<div class="log" id="log"></div>
+
+</div>
+
+<script>
+
+const ITEMS = [
+  { id: "a", name: "Objekt A", price: 2, img: "yoo1.png" },
+  { id: "b", name: "Objekt B", price: 3, img: "yoo2.png" },
+  { id: "c", name: "Objekt C", price: 1, img: "yoo3.png" },
+  { id: "d", name: "Objekt D", price: 4, img: "yoo4.png" },
+];
+
+let coins = 0;
+let selected = null;
+
+const grid = document.getElementById("grid");
+const coinDisplay = document.getElementById("coins");
+const logBox = document.getElementById("log");
+const dispImg = document.getElementById("dispenseImg");
+const dispText = document.getElementById("dispenseText");
+
+function log(msg){
+  logBox.innerHTML += msg + "<br>";
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+function render(){
+  grid.innerHTML="";
+  ITEMS.forEach(item=>{
+    const card=document.createElement("div");
+    card.className="card"+(selected===item.id?" selected":"");
+    card.onclick=()=>{selected=item.id;render();log("Selected "+item.name);};
+
+    card.innerHTML=`
+      <img src="${item.img}">
+      <div class="meta">${item.name} • ${item.price}🪙</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function addCoin(){
+  coins++;
+  coinDisplay.textContent=coins;
+  log("Coin inserted");
+}
+
+function buyItem(){
+  const item=ITEMS.find(i=>i.id===selected);
+  if(!item){log("Select a photocard first");return;}
+  if(coins<item.price){log("Not enough coins");return;}
+
+  coins-=item.price;
+  coinDisplay.textContent=coins;
+
+  dispImg.src=item.img;
+  dispText.textContent="Dispensed: "+item.name+" 🎁";
+
+  log("Bought "+item.name);
+}
+
+function reset(){
+  coins=0;
+  selected=null;
+  coinDisplay.textContent=0;
+  dispImg.src="";
+  dispText.textContent="Insert coins and buy a photocard.";
+  logBox.innerHTML="";
+  render();
+}
+
+render();
+
+</script>
+
+</body>
+</html>
